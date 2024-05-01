@@ -61,10 +61,10 @@ def prepare_chain(args):
 
     return voiceassitant_chain, processor, recogn_model, forced_decoder_ids
 
-def listen(chain, output_file):
+def listen(chain):
 
     voiceassitant_chain, processor, recogn_model, forced_decoder_ids = chain
-
+    output_file = open("conversation.txt", "r+")
     r = sr.Recognizer()
     with sr.Microphone(sample_rate=16000) as source:
         print("Calibrating...")
@@ -73,6 +73,7 @@ def listen(chain, output_file):
         print("Okay, go!")
         while True:
             text = ""
+            current_txt = ""
             print("Listening now...")
             try:
                 audio = r.listen(source, timeout=10, phrase_time_limit=60)
@@ -93,13 +94,15 @@ def listen(chain, output_file):
             response_text = voiceassitant_chain.predict(human_input=text, stop="\n\n")
             print(response_text)
             output_file.write("User: " + text + "\n")
+            output_file.truncate(0)
+            #output_file.write("\nIs it first line?")
             output_file.write("AI: " + response_text + "\n")
             output_file.flush()  # Make sure data is written immediately
 
+
 def main(args):
     chain = prepare_chain(args)
-    with open("conversation.txt", "w") as output_file:
-        listen(chain, output_file)
+    listen(chain)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='BigDL-LLM Transformer Int4 Langchain Voice Assistant Example')

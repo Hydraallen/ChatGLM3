@@ -3,44 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>实时文本更新</title>
+<title>Chat</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-  }
-  textarea {
-    width: 100%;
-    height: 300px;
-    margin-bottom: 10px;
+  /* 根据开头不同应用不同的颜色样式 */
+  .blue { color: blue; }
+  .red { color: red; }
+    /* 调整字体大小 */
+  pre {
+    font-size: 16px; /* 可根据需要调整字体大小 */
   }
 </style>
 </head>
 <body>
-
-<h1>实时文本更新</h1>
-<textarea id="textArea" readonly></textarea>
+<h1>Chat</h1>
+<pre id="text-content"></pre>
 
 <script>
-  // 读取文本文件内容并显示
-  function readTextFile(file) {
-    var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", file, true);
-    rawFile.onreadystatechange = function () {
-      if (rawFile.readyState === 4 && (rawFile.status === 200 || rawFile.status == 0)) {
-        var allText = rawFile.responseText;
-        document.getElementById('textArea').value = allText;
-      }
-    }
-    rawFile.send(null);
+  // 每隔一定时间更新文本内容
+  function updateTextContent() {
+    fetch('./conversation.txt') // 替换成你的文本文件路径
+      .then(response => response.text())
+      .then(text => {
+        // 将文本内容按行分割
+        const lines = text.split('\n');
+        // 构建HTML字符串，根据每行的开头应用不同的样式
+        const htmlContent = lines.map(line => {
+          if (line.startsWith('Human')) {
+            return `<span class="blue">${line}</span>`;
+          } else if (line.startsWith('AI')) {
+            return `<span class="red">${line}</span>`;
+          } else {
+            return line;
+          }
+        }).join('\n');
+        // 更新页面上的文本内容
+        document.getElementById('text-content').innerHTML = htmlContent;
+      });
   }
 
-  // 每秒更新文本文件内容
-  setInterval(function() {
-    readTextFile('./conversation.txt');
-  }, 1000);
-
+  // 初次加载页面时更新文本内容
+  updateTextContent();
+  // 每隔一定时间更新文本内容
+  setInterval(updateTextContent, 250); // 每5秒更新一次，可根据需求调整
 </script>
-
 </body>
 </html>
-
