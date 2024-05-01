@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实时文本更新</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+  textarea {
+    width: 100%;
+    height: 300px;
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h1>实时文本更新</h1>
+<textarea id="textArea" readonly></textarea>
+
+<script>
+  // 读取文本文件内容并显示
+  function readTextFile(file) {
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, true);
+    rawFile.onreadystatechange = function () {
+      if (rawFile.readyState === 4 && (rawFile.status === 200 || rawFile.status == 0)) {
+        var allText = rawFile.responseText;
+        document.getElementById('textArea').value = allText;
+      }
+    }
+    rawFile.send(null);
+  }
+
+  // 每秒更新文本文件内容
+  setInterval(function() {
+    readTextFile('./conversation.txt');
+  }, 1000);
+
+</script>
+
+</body>
+</html>
+
